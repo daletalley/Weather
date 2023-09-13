@@ -1,4 +1,4 @@
-//Declare a variable to store the searched city
+// Declare a variable to store the searched city
 var city="";
 // Variable declaration
 var searchCity = $("#search-city");
@@ -19,7 +19,7 @@ function find(c){
     }
     return 1;
 }
-//API key
+// API key
 var APIKey="3d3b0e4d5f9bf1670eb5f579eaf977bf";
 // Display current & future weather to the user after getting the city form the input.
 function displayWeather(event){
@@ -28,6 +28,7 @@ function displayWeather(event){
         city=searchCity.val().trim();
         currentWeather(city);
     }
+}
         // AJAX call
         function currentWeather(city){
             // Built the URL so we can get a data from server side.
@@ -38,20 +39,20 @@ function displayWeather(event){
             }).then(function(response){
         // Parse the response to display the current weather including the City name & the date & the weather icon. 
         console.log(response);
-        //Data object from server side Api for icon property.
+        // Data object from server side Api for icon property.
         var weathericon= response.weather[0].icon;
         var iconurl="https://openweathermap.org/img/wn/"+weathericon +"@2x.png";
         // The date format method is taken from the  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date
         var date=new Date(response.dt*1000).toLocaleDateString();
-        //parse the response for name of city and concanatig the date and icon.
+        // Pparse the response for name of city and concanatig the date and icon.
         $(currentCity).html(response.name +"("+date+")" + "<img src="+iconurl+">");
-        // parse the response to display the current temperature.
+        // Parse the response to display the current temperature.
         // Convert the temp to fahrenheit
         var tempF = (response.main.temp - 273.15) * 1.80 + 32;
         $(currentTemperature).html((tempF).toFixed(2)+"&#8457");
         // Display the Humidity
         $(currentHumidty).html(response.main.humidity+"%");
-        //Display Wind speed and convert to MPH
+        // Display Wind speed and convert to MPH
         var ws=response.wind.speed;
         var windsmph=(ws*2.237).toFixed(1);
         $(currentWSpeed).html(windsmph+"MPH");
@@ -116,14 +117,14 @@ function displayWeather(event){
             
         });
     }
-//Dynamically add the passed city on the search history
+// Dynamically add the passed city on the search history
 function addToList(c){
     var listEl= $("<li>"+c.toUpperCase()+"</li>");
     $(listEl).attr("class","list-group-item");
     $(listEl).attr("data-value",c.toUpperCase());
     $(".list-group").append(listEl);
 }
-// display the past search again when the list group item is clicked in search history
+// Display the past search again when the list group item is clicked in search history
 function invokePastSearch(event){
     var liEl=event.target;
     if (event.target.matches("li")){
@@ -132,3 +133,29 @@ function invokePastSearch(event){
     }
 
 }
+// Render function
+function loadlastCity(){
+    $("ul").empty();
+    var sCity = JSON.parse(localStorage.getItem("cityname"));
+    if(sCity!==null){
+        sCity=JSON.parse(localStorage.getItem("cityname"));
+        for(i=0; i<sCity.length;i++){
+            addToList(sCity[i]);
+        }
+        city=sCity[i-1];
+        currentWeather(city);
+    }
+}
+// Clear the search history from the page
+function clearHistory(event){
+    event.preventDefault();
+    sCity=[];
+    localStorage.removeItem("cityname");
+    document.location.reload();
+
+}
+// Click Handlers
+$("#search-button").on("click",displayWeather);
+$(document).on("click",invokePastSearch);
+$(window).on("load",loadlastCity);
+$("#clear-history").on("click",clearHistory);
